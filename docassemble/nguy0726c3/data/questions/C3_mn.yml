@@ -1,0 +1,172 @@
+#C3 Assessment
+---
+variable name: MNnamelist
+use objects: True
+data:
+  - Mary Nguyen
+  - Son Nguyen
+  - Loan Bui
+  - Jenny Nguyen
+  - Sally Nguyen
+---
+objects:
+  - MNdalist: DAList
+---
+# Just here to look good
+# C3 Welcome Screen
+mandatory: True
+question: Hello!
+subquestion: |
+  Welcome to a  list about my family!
+
+  ***Disclaimer:***  
+  **This list is true to my understanding. If it isn't, I am not liable for any inconvenience caused.**
+
+  If you continue you accept these terms.
+buttons:
+  - "I accept and want to learn more about your family!": continue
+  - "I don't want to learn about your family!": exit
+---
+# Display Screen
+question: My Family
+mandatory: True
+subquestion: |
+  These are my family members, including myself:
+  
+  *${ MNnamelist.comma_and_list() }*.
+  
+  This is the list in table form:
+  
+  Item|Name
+  ---|---
+  % for MNitem in MNnamelist:
+  ${ loop.index + 1 }|${ MNitem }
+  % endfor
+  
+  This is the list in bullet form:
+  
+  % for MNitem in MNnamelist:
+  - ${ MNitem }
+  % endfor
+  
+  There are **${ MNnamelist.number_as_word() }** people in my family. 
+
+  This is a list **without** people who's name ends in a vowel.
+  
+  Item|Name
+  ---|---
+  % for MNitem in MNnamelist:
+  % if MNitem[-1].lower() in set('bcdfghjklmnpqrstvwxyz'):
+  ${ loop.index + 1 }|${ MNitem }
+  % else:
+  ${loop.index + 1}|**REDACTED**
+  % endif
+  % endfor
+  
+buttons:
+  - Find out more about my family!: continue
+  - "I don't want to learn more about your family!": exit
+---
+objects:
+  - MNinfo: DADict
+---
+#Family Info Dictionary 
+variable name: MNinfo
+use objects: True
+data:
+  - First Name: Mary
+    Last Name: Nguyen
+    Age: 23
+    Hobbies: Make-up, gaming, reading
+    I Like Pets: No
+  - First Name: Son
+    Last Name: Nguyen
+    Age: 59
+    Hobbies: Technology, watching documentaries 
+    I Like Pets: Yes
+  - First Name: Loan
+    Last Name: Bui
+    Age: 55
+    Hobbies: Gardening, drama shows
+    I Like Pets: No
+  - First Name: Jenny
+    Last Name: Nguyen
+    Age: 21
+    Hobbies: TV shows, anime, music
+    I Like Pets: Yes
+  - First Name: Sally
+    Last Name: Nguyen
+    Age: 18
+    Hobbies: TV shows, music, drawing
+    I Like Pets: Yes
+---
+#Codeblock/Page for family info
+mandatory: True
+question: Stuff About My Family
+subquestion: |
+  
+  Here is more information about my family.
+  
+  ${ MNcolumn_header }
+  ${ MNdashes }
+  %for MNitem in MNtable_rows:
+  ${ MNitem }
+  %endfor
+  
+buttons:
+  - "I want to confirm some facts": continue
+  - I'm done: exit
+---
+# Creates the column header
+code: |
+  # This makes the column header empty
+  MNcolumn_header = ""
+  
+  # We access the first list element and iterate through its keys
+  for MNitem in MNinfo[0]:
+    MNcolumn_header += MNitem + '|'
+  
+  # This gets rid of the last '|'
+  MNcolumn_header = MNcolumn_header[:-1]
+---
+# Creates the dashes for the table header 
+code: |
+  # We iterate up to one short of the length of the dictionary so the last pipe doesn't need to be taken off.
+  MNdashes = "---"
+  for i in range(len(MNinfo[0]) - 1):
+    MNdashes += "|---"
+---
+# This constructs a list for display as the rows of the table.  Again, we iterate
+# through the first dictionary to get our list of keys, then we iterate over
+# this list to extract the values for each row. Dictionaryception!
+code: | 
+  # Initialise empty list
+  MNtable_rows = []
+  
+  # First loop.  Iterate through each list element putting each dictionary
+  # into MNitem
+  for MNitem in MNinfo:
+      # Second loop.  Get the keys so we can get the values
+      # But before we start, initialise a temporary variable in which
+      # we construct the Markdown table row
+      MDrow = ""
+      for MNkey in MNitem:
+        MDrow += str(MNitem[MNkey]) + '|'
+      # Trim the last pipe
+      MDrow = MDrow[:-1]
+      # Add to the list
+      MNtable_rows.append(MDrow)
+---
+#Codeblock to Confirm family info
+mandatory: True
+question: Is this all correct?
+subquestion: |
+ Please select all of the correct statements.
+fields:
+  - no label: MNconfirm
+    datatype: checkboxes
+    choices:
+      - Hi
+      - Bye
+---
+#Last Codeblock to Display
